@@ -11,7 +11,6 @@ class Solution:
         prevs = chain([0], prevs)
         nexts = chain(islice(nexts, 1, None), [0])
         return zip(prevs, items, nexts)
-    # %%
 
 
     def roman_to_arabic(r_num: str):
@@ -27,11 +26,11 @@ class Solution:
         result = [(label, sum(1 for _ in group)) for label, group in groups]
         for symbol, count in result:
             if symbol not in symbols:
-                return(f"{ num.upper() }:\t Contains invalid characters.")
+                return(f"{ r_num.upper() }: Contains invalid characters.")
             if count > 1 and symbol in ['V', 'L', 'D']:
-                return(f"{ num.upper() }:\t Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
+                return(f"{ r_num.upper() }: Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
             if count > 3:
-                return(f"{ num.upper() }:\t Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
+                return(f"{ r_num.upper() }: Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
 
         
 
@@ -48,26 +47,26 @@ class Solution:
 
             # Checks to see if the subtractor is within the appropriate range
             if .1*item > prev > 0:
-                return(f"{ num.upper() }:\t Not a valid Roman numeral. A value is being inappropriately subtracted.")
+                return(f"{ r_num.upper() }: Not a valid Roman numeral. A value is being inappropriately subtracted.")
 
             # If the previous symbol is worth less, then it's subtracted
             if prev < item:
                 total -= prev
                 # If the next symbol is worth more, a flag is raised
                 if nxt >= item and i > 0:
-                    return(f"{ num.upper() }:\t Not a valid Roman numeral. The order is incorrect.")
+                    return(f"{ r_num.upper() }: Not a valid Roman numeral. The order is incorrect.")
 
             else:
                 total += prev
 
             for n in value_dict.values():
                 if i > 1 and total == n:
-                    return(f"{ num.upper() }:\t Not a valid Roman numeral. There are symbols that could be condensed.")
+                    return(f"{ r_num.upper() }: Not a valid Roman numeral. There are symbols that could be condensed.")
 
             i += 1
         total += item
 
-        return (f"{ num.upper() }:\t { total }")
+        return (f"{ r_num.upper() }: { total }")
 
 
 
@@ -90,10 +89,10 @@ class Solution:
                     r_num = r_num[:-1*len(value_dict[i])]
                     break
 
-        return(f"{ original_num }:\t {r_num}")
+        return(f"{ original_num }: {r_num}")
 
 
-
+#%%
 
 # Test cases
 for num in ['xxxi', 'MMMDCDLXIV', 'IVX', 'XLV', 'XM',
