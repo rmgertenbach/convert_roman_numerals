@@ -1,77 +1,65 @@
 
-
-# %%
-from itertools import tee, chain, islice, groupby
+#%%
+from itertools import groupby
 from copy import copy
 
-class Solution:
-    def previous_and_next(num_list):
-        """Helper function to return symbols that surround a particular symbol"""
-        prevs, items, nexts = tee(num_list, 3)
-        prevs = chain([0], prevs)
-        nexts = chain(islice(nexts, 1, None), [0])
-        return zip(prevs, items, nexts)
+def romanToInt(s: str) -> str:
+    """Given a string, this function validates the string as a Roman numeral and returns
+    an explanation of why the string may not represent a valid Roman numeral or returns
+    the corresponding integer value."""
+    symbols = ['_', 'I', 'V', 'X', 'L', 'C', 'D', 'M']
+    num_list = [0, 1, 5, 10, 50, 100, 500, 1000]
+    mapping = dict(zip(symbols, num_list))
 
+    s = s.upper()
+    s_1 = '_' + s + '_'
 
-    def roman_to_arabic(r_num: str):
-        """Returns the arabic numeral representation of a roman numeral"""
-        # Convert to uppercase
-        r_num = r_num.upper()
+    groups = groupby(s_1)
+    result = [(label, sum(1 for _ in group)) for label, group in groups]
 
-        values = [1, 5, 10, 50, 100, 500, 1000]
-        symbols = ['I', 'V', 'X', 'L', 'C', 'D', 'M']
-        value_dict = dict(zip(symbols, values))
-        # Check for inappropriate use of consecutive symbols
-        groups = groupby(r_num)
-        result = [(label, sum(1 for _ in group)) for label, group in groups]
-        for symbol, count in result:
-            if symbol not in symbols:
-                return(f"{ r_num.upper() }: Contains invalid characters.")
-            if count > 1 and symbol in ['V', 'L', 'D']:
-                return(f"{ r_num.upper() }: Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
-            if count > 3:
-                return(f"{ r_num.upper() }: Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
+    # Check for inappropriate use of consecutive symbols
+    for symbol, count in result:
+        if symbol not in symbols:
+            return(f"{ s }: Contains invalid characters.")
+        if count > 1 and symbol in ['V', 'L', 'D']:
+            return(f"{ s }: Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
+        if count > 3:
+            return(f"{ s }: Not a valid Roman numeral. There are too many consecutive {symbol}'s.")
 
-        
+    # Loop through each symbol's value; include the previous and next values
+    i = total = 0
+    for idx, sym in enumerate(s, 1):
+        prv = mapping[s_1[idx - 1]]
+        val = mapping[sym]
+        nxt = mapping[s_1[idx + 1]]
+        # print(idx, sym, prv, val, nxt)
 
-        # Create a list of the numeric values
-        num_list = []
-        for r in r_num.upper():
-            num_list.append(value_dict[r])
+        # Check to see if a value is being subtracted that is smaller than one-tenth of the proceeding value (not valid)        
+        if .1*val > prv > 0:
+            return(f"{ s }: Not a valid Roman numeral. A value is being inappropriately subtracted.")
 
-        # Iterate through pairs and compare previous values
-        total = 0
-        i = 0
-        for prev, item, nxt in Solution.previous_and_next(num_list):
-            # print(prev, item, nxt)
+        # If the previous symbol is worth less, then it's subtracted
+        if prv < val:
+            total -= prv
+            # If the next symbol is worth more, a flag is raised
+            if nxt >= val and i > 0:
+                return(f"{ s }: Not a valid Roman numeral. The order is incorrect.")
 
-            # Checks to see if the subtractor is within the appropriate range
-            if .1*item > prev > 0:
-                return(f"{ r_num.upper() }: Not a valid Roman numeral. A value is being inappropriately subtracted.")
+        # If the previous symbol is worth the same or more, then it's added
+        else:
+            total += prv
 
-            # If the previous symbol is worth less, then it's subtracted
-            if prev < item:
-                total -= prev
-                # If the next symbol is worth more, a flag is raised
-                if nxt >= item and i > 0:
-                    return(f"{ r_num.upper() }: Not a valid Roman numeral. The order is incorrect.")
+        # Check to see if there are redundant symbols that sum to a number that is better represented in another way
+        for n in num_list:
+            if i > 1 and total == n:
+                return(f"{ s }: Not a valid Roman numeral. There are symbols that could be condensed.")
 
-            else:
-                total += prev
+        i += 1
+    total += val
+    return(f"{ s }: { total }")
 
-            for n in value_dict.values():
-                if i > 1 and total == n:
-                    return(f"{ r_num.upper() }: Not a valid Roman numeral. There are symbols that could be condensed.")
-
-            i += 1
-        total += item
-
-        return (f"{ r_num.upper() }: { total }")
-
-
-
-    def arabic_to_roman(a_num: int):
-        """Returns the Roman numeral representation of a b10 Arabic integer"""
+def intToRoman(a_num: int):
+        """Returns the Roman numeral representation of a b10 integer"""
         value_dict = {num: sym for num, sym in zip(
             [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1],
             ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I']
@@ -91,17 +79,12 @@ class Solution:
 
         return(f"{ original_num }: {r_num}")
 
-
 #%%
-
-# Test cases
 for num in ['xxxi', 'MMMDCDLXIV', 'IVX', 'XLV', 'XM',
             'xxivx', 'Mcx', 'XLVII', 'XLXI', 'MCMCD', 'DD', 'Xiiiii',
             'CMM', 'IVXLCDM', 'qwer']:
-    print(Solution.roman_to_arabic(num))
+    print(romanToInt(num))
 
-# %%
 for num in [3958, 3333, 256, 48, 23, 17, 987]:
-    print(Solution.arabic_to_roman(num))
-
+    print(intToRoman(num))
 #%%
